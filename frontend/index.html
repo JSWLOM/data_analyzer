@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Data Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+    <div class="header-top">
+        <h1>📊 AI Data Analyzer</h1>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+    <p>Upload your CSV or Excel file and ask anything!</p>
+</div>
+
+        <div class="upload-box" id="uploadBox">
+            <div class="upload-icon">📁</div>
+            <p>Drag & drop your CSV, Excel or PDF file here or</p>
+            <label for="fileInput" class="upload-btn">Choose File</label>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.pdf" hidden>
+            <p class="file-name" id="fileName">No file chosen</p>
+        </div>
+
+        <div class="dataset-info" id="datasetInfo" style="display:none">
+            <span id="infoText"></span>
+        </div>
+
+        <div class="question-box">
+            <input
+                type="text"
+                id="questionInput"
+                placeholder="Ask a question about your data..."
+            />
+            <button id="analyzeBtn" onclick="analyze()">
+                <span id="btnText">Analyze 🔍</span>
+            </button>
+        </div>
+
+        <div class="examples">
+            <p>💡 Try asking:</p>
+            <span class="tag" onclick="setQuestion('Which product has the highest total sales?')">Top product</span>
+            <span class="tag" onclick="setQuestion('Show total sales by region')">Sales by region</span>
+            <span class="tag" onclick="setQuestion('What are the monthly sales trends?')">Monthly trend</span>
+            <span class="tag" onclick="setQuestion('Compare sales by category')">By category</span>
+            <span class="tag" onclick="setQuestion('Who is the best salesperson?')">Best salesperson</span>
+            <span class="tag" onclick="setQuestion('Give me a full summary of this data')">Full summary</span>
+        </div>
+
+        <!-- Text Answer -->
+        <div class="result-box" id="resultBox" style="display:none">
+            <div class="result-header">
+                <h3>🤖 AI Analysis</h3>
+                <button class="copy-btn" onclick="copyResult()">Copy 📋</button>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+
+        <!-- Chart Box -->
+        <div class="chart-box" id="chartBox" style="display:none">
+            <div class="chart-header">
+                <h3 id="chartTitle">📈 Chart</h3>
+                <div class="chart-type-btns">
+                    <button onclick="switchChart('bar')">Bar</button>
+                    <button onclick="switchChart('line')">Line</button>
+                    <button onclick="switchChart('pie')">Pie</button>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+
+        <div class="error-box" id="errorBox" style="display:none">
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
