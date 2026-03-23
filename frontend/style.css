@@ -1,4 +1,4 @@
-/* ===== DARK MODE VARIABLES ===== */
+/* ===== VARIABLES ===== */
 :root {
     --bg-page: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --bg-container: #ffffff;
@@ -49,14 +49,45 @@ body.dark {
     --copy-color: #c4a8f0;
 }
 
-
-
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ===== ANIMATIONS ===== */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(118,75,162,0.4); }
+    50%       { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(118,75,162,0); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes bounceIn {
+    0%   { opacity: 0; transform: scale(0.6) translateY(20px); }
+    60%  { transform: scale(1.05) translateY(-4px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes typing {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== BASE ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'Segoe UI', sans-serif;
@@ -66,6 +97,7 @@ body {
     transition: background 0.3s;
 }
 
+/* ===== CONTAINER — fade slide in on load ===== */
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -74,12 +106,14 @@ body {
     padding: 40px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     transition: background 0.3s;
+    animation: fadeSlideUp 0.6s ease both;
 }
 
-/* Header */
+/* ===== HEADER ===== */
 .header {
     text-align: center;
     margin-bottom: 30px;
+    animation: fadeSlideUp 0.6s ease 0.1s both;
 }
 
 .header-top {
@@ -93,6 +127,12 @@ body {
 .header h1 {
     font-size: 2.2rem;
     color: var(--text-heading);
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
 }
 
 .header p {
@@ -100,7 +140,7 @@ body {
     font-size: 1rem;
 }
 
-/* Theme toggle button */
+/* ===== THEME TOGGLE ===== */
 .theme-toggle {
     position: absolute;
     right: 0;
@@ -115,11 +155,9 @@ body {
     transition: all 0.3s;
 }
 
-.theme-toggle:hover {
-    transform: scale(1.05);
-}
+.theme-toggle:hover { transform: scale(1.05); }
 
-/* Upload box */
+/* ===== UPLOAD BOX ===== */
 .upload-box {
     border: 3px dashed var(--border-upload);
     border-radius: 15px;
@@ -127,20 +165,27 @@ body {
     text-align: center;
     background: var(--bg-upload);
     margin-bottom: 20px;
-    transition: all 0.3s;
     cursor: pointer;
     color: var(--text-primary);
+    transition: all 0.3s;
+    animation: fadeSlideUp 0.6s ease 0.2s both;
 }
 
 .upload-box:hover {
     border-color: var(--input-focus);
     background: var(--bg-upload-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(118,75,162,0.15);
 }
 
 .upload-icon {
     font-size: 3rem;
     margin-bottom: 10px;
+    display: block;
+    transition: transform 0.3s;
 }
+
+.upload-box:hover .upload-icon { transform: scale(1.2) rotate(-5deg); }
 
 .upload-btn {
     background: linear-gradient(135deg, #667eea, #764ba2);
@@ -154,9 +199,7 @@ body {
     transition: transform 0.2s;
 }
 
-.upload-btn:hover {
-    transform: scale(1.05);
-}
+.upload-btn:hover { transform: scale(1.05); }
 
 .file-name {
     margin-top: 10px;
@@ -165,7 +208,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* Dataset info */
+/* ===== DATASET INFO ===== */
 .dataset-info {
     background: var(--bg-dataset);
     border-radius: 10px;
@@ -174,13 +217,15 @@ body {
     color: var(--text-dataset);
     font-size: 0.9rem;
     font-weight: 500;
+    animation: fadeSlideUp 0.4s ease both;
 }
 
-/* Question box */
+/* ===== QUESTION BOX ===== */
 .question-box {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
+    animation: fadeSlideUp 0.6s ease 0.3s both;
 }
 
 .question-box input {
@@ -190,15 +235,18 @@ body {
     border-radius: 12px;
     font-size: 1rem;
     outline: none;
-    transition: border 0.3s;
+    transition: all 0.3s;
     background: var(--bg-upload);
     color: var(--text-primary);
 }
 
 .question-box input:focus {
     border-color: var(--input-focus);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(118,75,162,0.1);
 }
 
+/* ===== ANALYZE BUTTON — pulse animation ===== */
 .question-box button {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
@@ -207,26 +255,34 @@ body {
     border-radius: 12px;
     font-size: 1rem;
     cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
     white-space: nowrap;
+    transition: transform 0.2s, opacity 0.2s;
+    animation: pulse 2.5s ease infinite;
 }
 
-.question-box button:hover { transform: scale(1.05); }
-.question-box button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.question-box button:hover {
+    transform: scale(1.05);
+    animation: none;
+}
 
-/* Example tags */
+.question-box button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    animation: none;
+    transform: none;
+}
+
+/* ===== EXAMPLE TAGS ===== */
 .examples {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     margin-bottom: 25px;
+    animation: fadeSlideUp 0.6s ease 0.4s both;
 }
 
-.examples p {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-}
+.examples p { color: var(--text-muted); font-size: 0.85rem; }
 
 .tag {
     background: var(--bg-tag);
@@ -242,14 +298,57 @@ body {
 .tag:hover {
     background: #764ba2;
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(118,75,162,0.3);
 }
 
-/* Result box */
+/* ===== SKELETON SHIMMER LOADER ===== */
+.skeleton-box {
+    background: var(--bg-result);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid var(--border-result);
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, var(--bg-upload) 25%, var(--border-result) 50%, var(--bg-upload) 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 12px;
+}
+
+/* ===== SPINNER ===== */
+.spinner-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--border-result);
+    border-top-color: #764ba2;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+.spinner-text {
+    color: var(--text-tag);
+    font-size: 0.95rem;
+}
+
+/* ===== RESULT BOX — bounce in ===== */
 .result-box {
     background: var(--bg-result);
     border-radius: 15px;
     padding: 25px;
     border: 1px solid var(--border-result);
+    animation: bounceIn 0.5s ease both;
 }
 
 .result-header {
@@ -259,10 +358,7 @@ body {
     margin-bottom: 15px;
 }
 
-.result-header h3 {
-    color: var(--text-heading);
-    font-size: 1.1rem;
-}
+.result-header h3 { color: var(--text-heading); font-size: 1.1rem; }
 
 .copy-btn {
     background: var(--copy-bg);
@@ -277,6 +373,7 @@ body {
 
 .copy-btn:hover { background: #764ba2; color: white; }
 
+/* ===== TYPEWRITER RESULT TEXT ===== */
 .result-content {
     color: var(--text-primary);
     line-height: 1.8;
@@ -284,7 +381,12 @@ body {
     white-space: pre-wrap;
 }
 
-/* Error box */
+.result-content.typing span {
+    opacity: 0;
+    animation: typing 0.03s ease forwards;
+}
+
+/* ===== ERROR BOX ===== */
 .error-box {
     background: var(--bg-error);
     border: 1px solid var(--border-error);
@@ -292,29 +394,17 @@ body {
     padding: 15px 20px;
     color: var(--text-error);
     font-size: 0.9rem;
+    animation: bounceIn 0.4s ease both;
 }
 
-/* Loading */
-.loading {
-    text-align: center;
-    color: var(--text-tag);
-    font-size: 0.95rem;
-    padding: 20px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-
-/* Chart box */
+/* ===== CHART BOX ===== */
 .chart-box {
     margin-top: 25px;
     background: var(--bg-result);
     border-radius: 15px;
     padding: 25px;
     border: 1px solid var(--border-result);
+    animation: bounceIn 0.5s ease 0.1s both;
 }
 
 .chart-header {
@@ -324,15 +414,9 @@ body {
     margin-bottom: 20px;
 }
 
-.chart-header h3 {
-    color: var(--text-heading);
-    font-size: 1.1rem;
-}
+.chart-header h3 { color: var(--text-heading); font-size: 1.1rem; }
 
-.chart-type-btns {
-    display: flex;
-    gap: 8px;
-}
+.chart-type-btns { display: flex; gap: 8px; }
 
 .chart-type-btns button {
     background: var(--copy-bg);
@@ -345,7 +429,11 @@ body {
     transition: all 0.2s;
 }
 
-.chart-type-btns button:hover { background: #764ba2; color: white; }
+.chart-type-btns button:hover {
+    background: #764ba2;
+    color: white;
+    transform: translateY(-2px);
+}
 
 .chart-wrapper {
     position: relative;
