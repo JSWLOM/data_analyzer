@@ -1,3 +1,9 @@
+# 📊 AI Data Analyzer
+🌐 **Live Demo:** https://data-analyzer-9jps.onrender.com
+
+An AI-powered data analysis tool built with FastAPI, Groq LLaMA, and Chart.js.
+...rest of your readme
+
 # AI Data Analyzer
 AI-powered data analysis tool built with FastAPI, Groq LLaMA and Chart.js.
 
