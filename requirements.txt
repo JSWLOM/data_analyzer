@@ -1,6 +1,6 @@
 fastapi
 uvicorn
+python-multipart
 pandas
 openpyxl
-python-multipart
-google-generativeai
+groq
