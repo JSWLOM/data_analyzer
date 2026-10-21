@@ -4,26 +4,465 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Data Analyzer</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+/* ===== VARIABLES — light mode (warm white + orange) ===== */
+:root {
+    --head: 'Space Grotesk', system-ui, sans-serif;
+    --body: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --orange: #ff6a1a;
+    --orange-dark: #e85a0c;
+    --orange-soft: rgba(255, 106, 26, 0.12);
+
+    --bg-page: #faf7f4;
+    --bg-container: rgba(255, 255, 255, 0.88);
+    --bg-upload: #fff7f1;
+    --bg-upload-hover: #ffede1;
+    --bg-result: #fffaf6;
+    --bg-dataset: #fff1e6;
+    --bg-tag: #fff1e6;
+    --bg-error: #fff0ea;
+    --text-primary: #1a1a1a;
+    --text-heading: #111111;
+    --text-muted: #77706a;
+    --text-dataset: #c24a00;
+    --text-tag: #c24a00;
+    --text-error: #b42318;
+    --border-upload: #ffb98f;
+    --border-result: #f1e3d8;
+    --border-error: #ffb48a;
+    --input-border: #eaddd2;
+    --input-focus: #ff6a1a;
+    --copy-bg: #fff1e6;
+    --copy-border: #ffd2b3;
+    --copy-color: #c24a00;
+    --glass-border: rgba(0, 0, 0, 0.06);
+    --shadow-main: 0 25px 70px rgba(255, 106, 26, 0.14);
+    --glow: rgba(255, 106, 26, 0.18);
+    --accent-grad: linear-gradient(135deg, #ff8a3d 0%, #ff6a1a 55%, #ff4d00 100%);
+    --on-accent: #000000;
+}
+
+/* ===== DARK MODE — black + orange (matches Resume × JD Matcher) ===== */
+body.dark {
+    --bg-page: #000000;
+    --bg-container: rgba(10, 10, 10, 0.9);
+    --bg-upload: #050505;
+    --bg-upload-hover: rgba(255, 106, 26, 0.12);
+    --bg-result: #0a0a0a;
+    --bg-dataset: #1a0d05;
+    --bg-tag: #111111;
+    --bg-error: #1a0d05;
+    --text-primary: #ffffff;
+    --text-heading: #ffffff;
+    --text-muted: #8a8a8a;
+    --text-dataset: #ff9a5c;
+    --text-tag: #ff9a5c;
+    --text-error: #ffb48a;
+    --border-upload: #333333;
+    --border-result: #222222;
+    --border-error: #ff6a1a;
+    --input-border: #222222;
+    --input-focus: #ff6a1a;
+    --copy-bg: #111111;
+    --copy-border: #2a2a2a;
+    --copy-color: #ff9a5c;
+    --glass-border: #222222;
+    --shadow-main: 0 25px 70px rgba(0, 0, 0, 0.7);
+    --glow: rgba(255, 106, 26, 0.22);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp   { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes spin     { to { transform: rotate(360deg); } }
+@keyframes shimmer  { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+@keyframes typing   { from { opacity: 0; } to { opacity: 1; } }
+@keyframes floatY   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes glowFloat{ 50% { transform: translateX(-46%) translateY(30px); } }
+@keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(255, 106, 26, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(255, 106, 26, 0); } }
+@keyframes btnPulse { 0%, 100% { box-shadow: 0 6px 18px rgba(255, 106, 26, 0.3), 0 0 0 0 rgba(255, 106, 26, 0.45); } 50% { box-shadow: 0 6px 18px rgba(255, 106, 26, 0.3), 0 0 0 10px rgba(255, 106, 26, 0); } }
+@keyframes bounceIn { 0% { opacity: 0; transform: scale(0.95) translateY(20px); } 60% { transform: scale(1.01) translateY(-3px); } 100% { opacity: 1; transform: none; } }
+@keyframes shake    { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+/* ===== BASE ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--body);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 56px 20px 80px;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+    transition: background 0.4s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ===== BACKGROUND GLOW ===== */
+.bg-blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); transition: background 0.4s; }
+.blob.b1 {
+    top: -240px; left: 50%; width: 700px; height: 500px;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    animation: glowFloat 9s ease-in-out infinite;
+}
+.blob.b2 {
+    bottom: -220px; right: -160px; width: 460px; height: 420px;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    opacity: 0.7;
+    animation: floatY 12s ease-in-out infinite;
+}
+.blob.b3 {
+    bottom: 20%; left: -200px; width: 400px; height: 380px;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    opacity: 0.5;
+    animation: floatY 15s ease-in-out infinite reverse;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--bg-container);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 44px;
+    box-shadow: var(--shadow-main);
+    transition: background 0.4s, border-color 0.4s;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ===== HEADER ===== */
+.header { text-align: center; margin-bottom: 34px; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+
+.badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border: 1px solid var(--border-result); border-radius: 999px;
+    color: var(--text-muted); margin-bottom: 18px;
+}
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); animation: pulseDot 1.8s infinite; }
+
+.header-top { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 10px; }
+
+.header h1 {
+    font-family: var(--head);
+    font-size: clamp(2rem, 5.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--text-heading);
+}
+
+.header p { color: var(--text-muted); font-size: 1.02rem; max-width: 520px; margin: 0 auto; }
+
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+    position: absolute; right: 0; top: 0;
+    background: var(--bg-tag); border: 1px solid var(--border-result); color: var(--text-primary);
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    font-family: var(--body); font-size: 0.82rem; font-weight: 600;
+    transition: all 0.25s;
+}
+.theme-toggle:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-2px); }
+.theme-toggle:active { transform: scale(0.96); }
+
+/* ===== UPLOAD BOX ===== */
+.upload-box {
+    border: 1.5px dashed var(--border-upload);
+    border-radius: 16px;
+    padding: 38px 24px;
+    text-align: center;
+    background: var(--bg-upload);
+    margin-bottom: 22px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.25s;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.upload-box:hover, .upload-box.dragover, .upload-box.drag-over, .upload-box.over {
+    border-color: var(--orange);
+    background: var(--bg-upload-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255, 106, 26, 0.15);
+}
+.upload-box.dragover, .upload-box.drag-over, .upload-box.over { border-style: solid; transform: scale(1.012); }
+
+.upload-icon {
+    width: 56px; height: 56px; margin: 0 auto 14px;
+    display: grid; place-items: center;
+    border-radius: 50%; border: 1px solid var(--border-upload);
+    font-size: 1.6rem;
+    animation: floatY 3.2s ease-in-out infinite;
+    transition: background 0.25s, border-color 0.25s;
+}
+.upload-box:hover .upload-icon { background: var(--orange); border-color: var(--orange); animation-play-state: paused; }
+
+.upload-box p { font-size: 0.95rem; color: var(--text-muted); }
+
+.upload-btn {
+    background: var(--accent-grad);
+    color: var(--on-accent);
+    padding: 11px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 14px;
+    font-family: var(--head);
+    font-size: 0.92rem;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(255, 106, 26, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.upload-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255, 106, 26, 0.45); }
+.upload-btn:active { transform: scale(0.97); }
+
+.upload-hint {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 0.72rem !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.file-name { margin-top: 12px; color: var(--orange) !important; font-weight: 600; font-size: 0.9rem !important; word-break: break-all; }
+
+/* ===== DATASET INFO ===== */
+.dataset-info {
+    background: var(--bg-dataset);
+    border: 1px solid var(--border-result);
+    border-left: 4px solid var(--orange);
+    border-radius: 12px;
+    padding: 13px 20px;
+    margin-bottom: 22px;
+    color: var(--text-dataset);
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ===== QUESTION BOX ===== */
+.question-box { display: flex; gap: 12px; margin-bottom: 16px; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+
+.question-box input {
+    flex: 1; min-width: 0;
+    padding: 15px 20px;
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    font-family: var(--body);
+    font-size: 0.98rem;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    background: var(--bg-upload);
+    color: var(--text-primary);
+}
+.question-box input::placeholder { color: var(--text-muted); opacity: 0.7; }
+.question-box input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px var(--orange-soft);
+    transform: translateY(-1px);
+}
+
+.question-box button {
+    position: relative; overflow: hidden;
+    background: var(--accent-grad);
+    color: var(--on-accent);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-family: var(--head);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.25s;
+    animation: btnPulse 2.6s ease infinite;
+}
+.question-box button::after {
+    content: ''; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg); transition: left 0.6s;
+}
+.question-box button:hover { transform: translateY(-2px); animation: none; box-shadow: 0 10px 30px rgba(255, 106, 26, 0.4); }
+.question-box button:hover::after { left: 130%; }
+.question-box button:active { transform: scale(0.98); }
+.question-box button:disabled { filter: grayscale(0.6) brightness(0.8); cursor: not-allowed; animation: none; transform: none; box-shadow: none; }
+
+/* ===== EXAMPLE TAGS ===== */
+.examples { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-bottom: 28px; animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+.examples p { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+
+.tag {
+    background: var(--bg-tag);
+    color: var(--text-primary);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border-result);
+    user-select: none;
+}
+.tag:hover { background: var(--orange); color: #000; border-color: var(--orange); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 106, 26, 0.35); }
+.tag:active { transform: scale(0.95); }
+
+.examples .tag { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.examples .tag:nth-of-type(1) { animation-delay: 0.50s; }
+.examples .tag:nth-of-type(2) { animation-delay: 0.56s; }
+.examples .tag:nth-of-type(3) { animation-delay: 0.62s; }
+.examples .tag:nth-of-type(4) { animation-delay: 0.68s; }
+.examples .tag:nth-of-type(5) { animation-delay: 0.74s; }
+.examples .tag:nth-of-type(6) { animation-delay: 0.80s; }
+
+/* ===== SKELETON LOADER ===== */
+.skeleton-box { background: var(--bg-result); border-radius: 16px; padding: 26px; border: 1px solid var(--border-result); animation: fadeIn 0.3s ease both; }
+.skeleton-line {
+    height: 14px; border-radius: 7px; margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--bg-upload) 25%, var(--border-result) 50%, var(--bg-upload) 75%);
+    background-size: 600px 100%; animation: shimmer 1.5s infinite;
+}
+.skeleton-line:nth-child(2) { width: 90%; }
+.skeleton-line:nth-child(3) { width: 75%; }
+.skeleton-line:nth-child(4) { width: 55%; }
+
+/* ===== SPINNER ===== */
+.spinner-wrap { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 10px 0; }
+.spinner { width: 24px; height: 24px; border: 3px solid var(--border-result); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.spinner-text { color: var(--text-muted); font-family: var(--mono); font-size: 0.85rem; }
+
+/* ===== RESULT BOX ===== */
+.result-box {
+    background: var(--bg-result);
+    border: 1px solid var(--border-result);
+    border-left: 4px solid var(--orange);
+    border-radius: 16px;
+    padding: 26px 28px;
+    animation: bounceIn 0.55s ease both;
+}
+
+.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.result-header h3 { font-family: var(--head); color: var(--text-heading); font-size: 1.1rem; font-weight: 700; }
+
+.copy-btn {
+    background: var(--copy-bg); border: 1px solid var(--copy-border); color: var(--copy-color);
+    padding: 7px 15px; border-radius: 999px; cursor: pointer;
+    font-family: var(--mono); font-size: 0.76rem; transition: all 0.2s;
+}
+.copy-btn:hover { background: var(--orange); color: #000; border-color: var(--orange); transform: translateY(-2px); }
+.copy-btn:active { transform: scale(0.95); }
+
+.result-content { color: var(--text-primary); line-height: 1.85; font-size: 0.97rem; white-space: pre-wrap; }
+.result-content.typing span { opacity: 0; animation: typing 0.03s ease forwards; }
+
+/* ===== ERROR BOX ===== */
+.error-box {
+    background: var(--bg-error);
+    border: 1px solid var(--border-error);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text-error);
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: shake 0.4s;
+}
+
+/* ===== CHART BOX ===== */
+.chart-box {
+    margin-top: 26px;
+    background: var(--bg-result);
+    border-radius: 16px;
+    padding: 26px 28px;
+    border: 1px solid var(--border-result);
+    animation: bounceIn 0.55s ease 0.1s both;
+}
+
+.chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+.chart-header h3 { font-family: var(--head); color: var(--text-heading); font-size: 1.1rem; font-weight: 700; }
+
+.chart-type-btns { display: inline-flex; gap: 2px; padding: 4px; background: var(--bg-page); border: 1px solid var(--border-result); border-radius: 999px; }
+.chart-type-btns button {
+    background: transparent; border: 0; color: var(--text-muted);
+    padding: 6px 16px; border-radius: 999px; cursor: pointer;
+    font-family: var(--body); font-size: 0.82rem; font-weight: 500; transition: all 0.25s;
+}
+.chart-type-btns button:hover { color: var(--text-primary); }
+.chart-type-btns button.active { background: var(--orange); color: #000; }
+
+.chart-wrapper { position: relative; height: 350px; width: 100%; }
+
+/* ===== FOOTER ===== */
+.footer-note { text-align: center; margin-top: 30px; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.04em; animation: fadeIn 1s ease 1s both; }
+
+/* ===== SCROLLBAR + SELECTION ===== */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-upload); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+::selection { background: var(--orange); color: #000; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+    body { padding: 24px 12px 60px; }
+    .container { padding: 26px 18px; border-radius: 20px; }
+    .header-top { flex-direction: column; gap: 12px; }
+    .theme-toggle { position: static; }
+    .upload-box { padding: 28px 14px; }
+    .question-box { flex-direction: column; }
+    .question-box button { width: 100%; }
+    .chart-wrapper { height: 280px; }
+    .result-box, .chart-box { padding: 20px 18px; }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="dark">
+
+    <!-- Animated background -->
+    <div class="bg-blobs" aria-hidden="true">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
+    </div>
 
     <div class="container">
         <div class="header">
-    <div class="header-top">
-        <h1>📊 AI Data Analyzer</h1>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
-    </div>
-    <p>Upload your CSV or Excel file and ask anything!</p>
-</div>
+            <div class="badge"><span class="dot"></span> AI · Data · Analytics</div>
+            <div class="header-top">
+                <h1>📊 AI Data Analyzer</h1>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
+            </div>
+            <p>Upload your CSV or Excel file and ask anything!</p>
+        </div>
 
         <div class="upload-box" id="uploadBox">
             <div class="upload-icon">📁</div>
-            <p>Drag & drop your CSV, Excel or PDF file here or</p>
+            <p>Drag &amp; drop your CSV, Excel or PDF file here or</p>
             <label for="fileInput" class="upload-btn">Choose File</label>
             <input type="file" id="fileInput" accept=".csv,.xlsx,.pdf" hidden>
             <p class="file-name" id="fileName">No file chosen</p>
+            <p class="upload-hint">CSV · XLSX · PDF</p>
         </div>
 
         <div class="dataset-info" id="datasetInfo" style="display:none">
@@ -78,6 +517,8 @@
         <div class="error-box" id="errorBox" style="display:none">
             <p id="errorText"></p>
         </div>
+
+        <p class="footer-note">Built with FastAPI &amp; Chart.js</p>
     </div>
 
     <script src="/static/app.js"></script>
